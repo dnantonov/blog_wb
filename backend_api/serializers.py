@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from backend_api.models import Post
+from backend_api.models import Post, UserFollowing
 
 from django.contrib.auth import authenticate, get_user_model
 from djoser.conf import settings
@@ -31,7 +31,36 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ('title', 'body', 'owner')
+        fields = ('title', 'body', 'owner', 'published_date')
 
+
+class FollowingSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserFollowing
+        fields = ("id", "following_user_id", "created")
+        
+
+class FollowersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserFollowing
+        fields = ("id", "user_id", "created")
+
+
+class UserSerializer(serializers.ModelSerializer):
+    posts_count = serializers.IntegerField(read_only=True)
+    following = serializers.SerializerMethodField()
+    followers = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'posts_count', "following", "followers")
+        extra_kwargs = {"password": {"write_only": True}}
+
+    def get_following(self, obj):
+        return FollowingSerializer(obj.following.all(), many=True).data
+
+    def get_followers(self, obj):
+        return FollowersSerializer(obj.followers.all(), many=True).data
 
 
