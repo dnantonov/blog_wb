@@ -4,7 +4,7 @@ from django.db.models import Count
 import django_filters.rest_framework
 from rest_framework import status, filters, viewsets
 from rest_framework.generics import CreateAPIView
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -13,6 +13,9 @@ from backend_api.serializers import PostSerializer, UserSerializer
 
 
 class CreatePostView(CreateAPIView):
+    """
+    Class Based View for create a post by authenticated user.
+    """
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
 
@@ -28,11 +31,14 @@ class CreatePostView(CreateAPIView):
             return Response(data)
 
 
-class ListPosts(viewsets.ModelViewSet):
+class PostsListView(viewsets.ModelViewSet):
+    """
+    Get all posts except posts current user.
+    """
     permission_classes = [IsAuthenticated]
     serializer_class = PostSerializer
     filter_backends = [filters.OrderingFilter]
-    ordering_fields = ['published_date',]
+    ordering_fields = ['published_date']
     ordering = ['-published_date']
     
     def get_queryset(self):
@@ -43,6 +49,9 @@ class ListPosts(viewsets.ModelViewSet):
 
 
 class UsersListView(viewsets.ModelViewSet):
+    """
+    Get all users and count posts by each user.
+    """
     permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
     queryset = User.objects.all().annotate(posts_count=Count('post'))
@@ -51,6 +60,50 @@ class UsersListView(viewsets.ModelViewSet):
     
     def get(self, request, *args, **kwargs):
         return Response(self.serializer_class.data)
-    
-    
+
+
+class UserFollowingView(APIView):
+    """
+    View for following user by username.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, username, *args, **kwargs):
+        current_user = request.user
+        follow_user = User.objects.get(username=username)
+        UserFollowing.objects.create(user_id=current_user,
+                                     following_user_id=follow_user)
+        data = {
+            'success': 'ok',
+            'info': f'You are following {follow_user}'
+        }
+        return Response(data)
+
+
+class UserUnfollowingView(UserFollowingView):
+    """
+    View for unfollow user by username.
+    """
+    def get(self, request, username, *args, **kwargs):
+        current_user = request.user
+        unfollow_user = User.objects.get(username=username)
+        UserFollowing.objects.filter(user_id=current_user,
+                                     following_user_id=unfollow_user).delete()
+        data = {
+            'success': 'ok',
+            'info': f'You unfollowed {unfollow_user}'
+        }
+        return Response(data)
+
+
+class FeedView(PostsListView):
+    def get_queryset(self):
+        qs = UserFollowing.objects.filter(user_id=self.request.user.id)
+        following_ids = [q.following_user_id.id for q in qs]
+        return Post.objects.filter(owner__id__in=following_ids).exclude(owner=self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        return Response(self.serializer_class.data)
+
+
 
