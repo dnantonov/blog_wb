@@ -85,3 +85,28 @@ class LogoutTest(BaseTest):
         self.client.post(self.login_url, self.login_user, format='json')
         response = self.client.post(self.logout_url, format='json')
         self.assertEqual(response.status_code, 200)
+
+
+class CreatePostTest(BaseTest):
+    pass
+
+
+class UsersListTest(BaseTest):
+    pass
+
+
+class PostsListTest(BaseTest):
+    pass
+
+
+class FollowersTest(BaseTest):
+    pass
+
+
+class FeedTest(BaseTest):
+    pass
+
+
+class ReadPostTest(BaseTest):
+    pass
+
