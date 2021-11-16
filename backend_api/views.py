@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.db.models import Count
 
-import django_filters.rest_framework
+from django_filters import rest_framework
 from rest_framework import status, filters, viewsets
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -31,23 +31,6 @@ class CreatePostView(CreateAPIView):
             return Response(data)
 
 
-class PostsListView(viewsets.ModelViewSet):
-    """
-    Get all posts except posts current user.
-    """
-    permission_classes = [IsAuthenticated]
-    serializer_class = PostSerializer
-    filter_backends = [filters.OrderingFilter]
-    ordering_fields = ['published_date']
-    ordering = ['-published_date']
-    
-    def get_queryset(self):
-        return Post.objects.all().exclude(owner=self.request.user)
-
-    def get(self, request, *args, **kwargs):
-        return Response(self.serializer_class.data)
-
-
 class UsersListView(viewsets.ModelViewSet):
     """
     Get all users and count posts by each user.
@@ -55,7 +38,7 @@ class UsersListView(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
     queryset = User.objects.all().annotate(posts_count=Count('post'))
-    filter_backends = [django_filters.rest_framework.DjangoFilterBackend, filters.OrderingFilter]
+    filter_backends = [rest_framework.DjangoFilterBackend, filters.OrderingFilter]
     ordering_fields = ('posts_count',)
     
     def get(self, request, *args, **kwargs):
@@ -96,14 +79,52 @@ class UserUnfollowingView(UserFollowingView):
         return Response(data)
 
 
-class FeedView(PostsListView):
+class PostsListView(viewsets.ModelViewSet):
+    """
+    Get all posts except posts current user.
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = PostSerializer
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ['published_date']
+    ordering = ['-published_date']
+
     def get_queryset(self):
+        return Post.objects.all().exclude(owner=self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        return Response(self.serializer_class.data)
+
+
+class FeedView(PostsListView):
+    """
+    Get posts from following users. 10 posts per page
+    """
+    filter_backends = [filters.OrderingFilter, rest_framework.DjangoFilterBackend]
+    filter_fields = ['read']
+
+    def get_queryset(self):
+        # Get ids for users in our following list
         qs = UserFollowing.objects.filter(user_id=self.request.user.id)
         following_ids = [q.following_user_id.id for q in qs]
+        # Get posts from users that are located in following list.
         return Post.objects.filter(owner__id__in=following_ids).exclude(owner=self.request.user)
 
     def get(self, request, *args, **kwargs):
         return Response(self.serializer_class.data)
 
+
+class ReadPostView(APIView):
+    """
+    Mark post as read by user.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk, *args, **kwargs):
+        post = Post.objects.get(pk=pk)
+        post.read = True
+        post.save()
+        serializer = PostSerializer(post)
+        return Response(serializer.data)
 
 

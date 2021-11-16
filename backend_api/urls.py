@@ -3,7 +3,8 @@ from dj_rest_auth.registration.views import RegisterView, VerifyEmailView, Confi
 from dj_rest_auth.views import LoginView, LogoutView
 
 from backend_api.views import CreatePostView, PostsListView, UsersListView,\
-                              UserFollowingView, UserUnfollowingView, FeedView
+                              UserFollowingView, UserUnfollowingView, FeedView, \
+                              ReadPostView
 
 
 urlpatterns = [
@@ -25,4 +26,5 @@ urlpatterns = [
     path('follow/<str:username>/', UserFollowingView.as_view()),
     path('unfollow/<str:username>/', UserUnfollowingView.as_view()),
     path('feed/', FeedView.as_view({'get': 'list'})),
+    path('posts/<int:pk>/', ReadPostView.as_view()),
 ]

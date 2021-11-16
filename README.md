@@ -1,19 +1,34 @@
-http://127.0.0.1:8000/api/login/
 
-http://127.0.0.1:8000/api/logout/
+### Endpoints
 
-http://127.0.0.1:8000/api/register/
+1. http://127.0.0.1:8000/api/login/  
+Method: POST
 
-http://127.0.0.1:8000/api/create_post/
+2. http://127.0.0.1:8000/api/logout/  
+Method: POST
 
-http://127.0.0.1:8000/api/users/
+3. http://127.0.0.1:8000/api/register/  
+Method: POST
 
-http://127.0.0.1:8000/api/posts/
+4. http://127.0.0.1:8000/api/create_post/  
+Method: POST
 
-http://127.0.0.1:8000/api/follow/<str:username>/
+5. http://127.0.0.1:8000/api/users/  
+Method: GET
 
-http://127.0.0.1:8000/api/unfollow/kodoku/
+6. http://127.0.0.1:8000/api/posts/  
+Method: GET
 
-http://127.0.0.1:8000/api/feed/
+7. http://127.0.0.1:8000/api/follow/<str:username>/  
+Method: GET
+
+8. http://127.0.0.1:8000/api/unfollow/<str:username>/
+Method: GET
+
+9. http://127.0.0.1:8000/api/feed/  
+Method: GET
+
+10. http://127.0.0.1:8000/api/posts/<int:pk>/  
+Method: GET
 
 

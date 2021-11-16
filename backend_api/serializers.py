@@ -31,7 +31,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ('title', 'body', 'owner', 'published_date')
+        fields = ('title', 'body', 'owner', 'published_date', 'read')
 
 
 class FollowingSerializer(serializers.ModelSerializer):
