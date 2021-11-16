@@ -22,7 +22,7 @@ Method: GET
 7. http://127.0.0.1:8000/api/follow/<str:username>/  
 Method: GET
 
-8. http://127.0.0.1:8000/api/unfollow/<str:username>/
+8. http://127.0.0.1:8000/api/unfollow/<str:username>/ 
 Method: GET
 
 9. http://127.0.0.1:8000/api/feed/  

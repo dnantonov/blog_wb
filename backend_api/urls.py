@@ -9,9 +9,9 @@ from backend_api.views import CreatePostView, PostsListView, UsersListView,\
 
 urlpatterns = [
     path('account-confirm-email/<str:key>/', ConfirmEmailView.as_view()),
-    path('register/', RegisterView.as_view()),
-    path('login/', LoginView.as_view()),
-    path('logout/', LogoutView.as_view()),
+    path('register/', RegisterView.as_view(), name='register'),
+    path('login/', LoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
 
     path('verify-email/',
          VerifyEmailView.as_view(), name='rest_verify_email'),
@@ -20,11 +20,11 @@ urlpatterns = [
     re_path(r'^account-confirm-email/(?P<key>[-:\w]+)/$',
             VerifyEmailView.as_view(), name='account_confirm_email'),
 
-    path('create_post/', CreatePostView.as_view()),
-    path('posts/', PostsListView.as_view({'get': 'list'})),
-    path('users/', UsersListView.as_view({'get': 'list'})),
-    path('follow/<str:username>/', UserFollowingView.as_view()),
-    path('unfollow/<str:username>/', UserUnfollowingView.as_view()),
-    path('feed/', FeedView.as_view({'get': 'list'})),
-    path('posts/<int:pk>/', ReadPostView.as_view()),
+    path('create_post/', CreatePostView.as_view(), name='create-post'),
+    path('posts/', PostsListView.as_view({'get': 'list'}), name='posts'),
+    path('users/', UsersListView.as_view({'get': 'list'}), name='users'),
+    path('follow/<str:username>/', UserFollowingView.as_view(), name='follow'),
+    path('unfollow/<str:username>/', UserUnfollowingView.as_view(), name='unfollow'),
+    path('feed/', FeedView.as_view({'get': 'list'}), name='feed'),
+    path('posts/<int:pk>/', ReadPostView.as_view(), name='post'),
 ]
