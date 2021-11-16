@@ -2,13 +2,12 @@ from django.urls import reverse
 
 from rest_framework.test import APITestCase
 
-from backend_api.models import User
-
 
 class BaseTest(APITestCase):
     def setUp(self):
         self.register_url = reverse('register')
         self.login_url = reverse('login')
+        self.logout_url = reverse('logout')
         self.user = {
             'username': 'test_username',
             'email': 'test@testmail.com',
@@ -81,3 +80,8 @@ class LoginTest(BaseTest):
         self.assertEqual(response.status_code, 400)
 
 
+class LogoutTest(BaseTest):
+    def test_logout_success(self):
+        self.client.post(self.login_url, self.login_user, format='json')
+        response = self.client.post(self.logout_url, format='json')
+        self.assertEqual(response.status_code, 200)
