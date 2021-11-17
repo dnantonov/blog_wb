@@ -106,7 +106,33 @@ class UsersListTest(BaseTest):
 
 
 class FollowersTest(BaseTest):
-    pass
+    def test_follow_not_authenticated(self):
+        follow_url = reverse('follow', args=(self.user2['username'],))
+        response = self.client.get(follow_url, format='json')
+        self.assertEqual(response.status_code, 401)
+        
+    def test_follow(self):
+        self.client.post(self.login_url, self.login_user, format='json')
+        follow_url = reverse('follow', args=(self.user2['username'],))
+        response = self.client.get(follow_url, format='json')
+        users_response = self.client.get(self.users_url, format='json')
+        following_user_id = users_response.data['results'][0]['following'][0]['following_user_id']
+        self.assertEqual(User.objects.get(id=following_user_id).username, 'test_username2')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['success'], 'ok')
+        
+    
+    def test_unrollow(self):
+        self.client.post(self.login_url, self.login_user, format='json')
+        follow_url = reverse('follow', args=(self.user2['username'],))
+        unfollow_url = reverse('unfollow', args=(self.user2['username'],))
+        self.client.get(follow_url, format='json')
+        response = self.client.get(unfollow_url, format='json')
+        users_response = self.client.get(self.users_url, format='json')
+        following = users_response.data['results'][0]['following']
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['success'], 'ok')
+        self.assertEqual(following, [])
 
 
 class FeedTest(BaseTest):
