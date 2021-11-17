@@ -14,6 +14,7 @@ class BaseTest(APITestCase):
         self.create_post_url = reverse('create-post')
         self.posts_url = reverse('posts')
         self.users_url = reverse('users')
+        self.feed_url = reverse('feed')
         self.user = {
             'username': 'test_username',
             'email': 'test@testmail.com',
@@ -122,7 +123,7 @@ class FollowersTest(BaseTest):
         self.assertEqual(response.data['success'], 'ok')
         
     
-    def test_unrollow(self):
+    def test_unfollow(self):
         self.client.post(self.login_url, self.login_user, format='json')
         follow_url = reverse('follow', args=(self.user2['username'],))
         unfollow_url = reverse('unfollow', args=(self.user2['username'],))
@@ -133,11 +134,3 @@ class FollowersTest(BaseTest):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['success'], 'ok')
         self.assertEqual(following, [])
-
-
-class FeedTest(BaseTest):
-    pass
-
-
-class ReadPostTest(BaseTest):
-    pass
