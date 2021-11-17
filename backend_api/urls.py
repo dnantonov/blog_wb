@@ -8,17 +8,14 @@ from backend_api.views import CreatePostView, PostsListView, UsersListView,\
 
 
 urlpatterns = [
-    path('account-confirm-email/<str:key>/', ConfirmEmailView.as_view()),
+#     path('account-confirm-email/<str:key>/', ConfirmEmailView.as_view()),
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
-
-    path('verify-email/',
-         VerifyEmailView.as_view(), name='rest_verify_email'),
-    path('account-confirm-email/',
-         VerifyEmailView.as_view(), name='account_email_verification_sent'),
-    re_path(r'^account-confirm-email/(?P<key>[-:\w]+)/$',
-            VerifyEmailView.as_view(), name='account_confirm_email'),
+    
+#     path('verify-email/', VerifyEmailView.as_view(), name='rest_verify_email'),
+#     path('account-confirm-email/', VerifyEmailView.as_view(), name='account_email_verification_sent'),
+#     re_path(r'^account-confirm-email/(?P<key>[-:\w]+)/$', VerifyEmailView.as_view(), name='account_confirm_email'),
 
     path('create_post/', CreatePostView.as_view(), name='create-post'),
     path('posts/', PostsListView.as_view({'get': 'list'}), name='posts'),
