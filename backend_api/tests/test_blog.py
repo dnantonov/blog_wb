@@ -3,7 +3,7 @@ from django.urls import reverse
 from rest_framework.test import APITestCase
 
 from backend_api.models import Post, User
-from backend_api.serializers import PostSerializer
+from backend_api.serializers import PostSerializer, UserSerializer
 
 
 class BaseTest(APITestCase):
@@ -13,6 +13,7 @@ class BaseTest(APITestCase):
         self.logout_url = reverse('logout')
         self.create_post_url = reverse('create-post')
         self.posts_url = reverse('posts')
+        self.users_url = reverse('users')
         self.user = {
             'username': 'test_username',
             'email': 'test@testmail.com',
@@ -63,7 +64,7 @@ class CreatePostTest(BaseTest):
 
 class PostsListTest(BaseTest):
     def test_posts_not_authenticated(self):
-        response = self.client.get(self.posts_url)
+        response = self.client.get(self.posts_url, format='json')
         self.assertEqual(response.status_code, 401)
         
     def test_current_user_posts_are_not_displayed(self):
@@ -78,8 +79,8 @@ class PostsListTest(BaseTest):
     def test_other_users_posts_are_displayed_and_correct_ordering(self):
         self.client.post(self.login_url, self.login_user, format='json')
         user = User.objects.get(username="test_username2")
-        p1 = Post.objects.create(title='test title1', body='test body1', owner=user)
-        p2 = Post.objects.create(title='test title2', body='test body2', owner=user)
+        Post.objects.create(title='test title1', body='test body1', owner=user)
+        Post.objects.create(title='test title2', body='test body2', owner=user)
         posts = Post.objects.all()
         serializer_data = PostSerializer(posts, many=True).data
         response = self.client.get(self.posts_url, format='json')
@@ -89,7 +90,19 @@ class PostsListTest(BaseTest):
 
 
 class UsersListTest(BaseTest):
-    pass
+    def test_users_list_not_authenticated(self):
+        response = self.client.get(self.users_url, format='json')
+        self.assertEqual(response.status_code, 401)
+    
+    def test_users_ordering(self):
+        self.client.post(self.login_url, self.login_user, format='json')
+        user = User.objects.get(username="test_username2")
+        Post.objects.create(title='test title1', body='test body1', owner=user)
+        Post.objects.create(title='test title2', body='test body2', owner=user)
+        response = self.client.get(self.users_url, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['results'][0]['posts_count'], 0)
+        self.assertEqual(response.data['results'][1]['posts_count'], 2)
 
 
 class FollowersTest(BaseTest):
