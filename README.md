@@ -32,7 +32,7 @@ Example:
 
 4. http://127.0.0.1:8000/api/create_post/  
 Creating a new post for an authorized user  
-Method: POST
+Method: POST  
 Example:
 ```json
 {
